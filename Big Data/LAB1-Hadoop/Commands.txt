@@ -1,0 +1,85 @@
+Create the Network:
+______________________
+
+docker network create --driver=bridge Hadoop
+ 
+
+Create Master Node:
+docker run -itd --net=hadoop -p 50070:50070 -p 8088:8088 -p 8080:8080 --name hadoop-master --hostname hadoop-master liliasfaxi/spark-hadoop:hv-2.7.2
+
+
+Create Slave 1:
+docker run -itd --net=hadoop -p 8042:8042 --name hadoop-slave1 --hostname hadoop-slave1 liliasfaxi/spark-hadoop:hv-2.7.2
+
+
+Create Slave 2:
+docker run -itd --net=hadoop -p 8043:8042 --name hadoop-slave2 --hostname hadoop-slave2 liliasfaxi/spark-hadoop:hv-2.7.2
+
+
+--------------------------------------------------------------------------------------
+
+
+Daily Workflow Commands : 
+____________________________
+
+Stop (End of session):
+docker stop hadoop-master hadoop-slave1 hadoop-slave2
+
+Start (Beginning of session):
+docker start hadoop-master hadoop-slave1 hadoop-slave2
+
+Enter the Master Node:
+docker exec -it hadoop-master bash
+
+To Start Hadoop/YARN (Must run this inside the master every time you start):
+./start-hadoop.sh
+
+--------------------------------------------------------------------------------------
+HDFS Data Management
+_______________________
+
+Commands used inside the hadoop-master shell to manage your files
+
+Create Input Folder:
+hdfs dfs -mkdir /input
+
+Upload File to HDFS:
+hdfs dfs -put purchases.txt /input
+
+List HDFS Files:
+hdfs dfs -ls /input
+
+View Last Lines of a File:
+hdfs dfs -tail /input/purchases.txt
+
+
+-------------------------------------------------------------------------------------
+Maintenance & Verification
+__________________________
+Check running processes: 
+jps
+
+Check running containers: 
+docker ps
+
+Delete everything (Warning: loses all data): 
+docker rm -f hadoop-master hadoop-slave1 hadoop-slave2
+
+
+------------------------------------------------------
+Generate the JAR:
+mvn clean package
+
+Copy to Master:
+docker cp target/wordcount-1.0-SNAPSHOT.jar hadoop-master:/root/wordcount.jar
+
+Inside the Master Container : docker exec -it hadoop-master bash
+	Clean HDFS : hdfs dfs -rm -r /output
+	Run the MapReduce Job : hadoop jar wordcount.jar tp1.WordCount /input /output
+	Display the Results : hdfs dfs -cat /output/part-r-00000 | head -n 20
+
+
+
+
+
+

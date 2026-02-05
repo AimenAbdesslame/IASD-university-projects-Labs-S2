@@ -1,0 +1,26 @@
+1) Mapper : 
+Reads lines => separate theme words 
+Action: It reads "melon", sorts letters to get "elmno", and outputs elmno as the Key and melon as the Value.
+
+2) Reducer : 
+Receives words grouped by Key (Input: elmno => [melon, lemon])
+Action: It loops through the values. As long as the Key (elmno) stays the same, it adds the words to a list. When the Key changes, it prints the list.
+
+3) View result : 
+hdfs dfs -cat /output-anagram/part-00000
+
+
+Example : 
+
+Raw Input : melon barre lemon
+
+Mapper Output:
+	elmno => melon
+	aberr => barre
+	elmno =>lemon
+
+Shuffle (Hadoop) : Groups elmno together
+
+Reducer Output:
+	aberr => ['barre']
+	elmno => ['lemon', 'melon']

@@ -1,0 +1,43 @@
+1) mapper and reducer creation . 
+	Mapper Pseudo Code : 
+		FOR EACH line in Input_File:
+    
+    			Remove leading/trailing spaces from line
+    			Split line into a list of fields (based on tab or space)
+
+   			 IF list has 6 fields:
+       				 SET store_name = field at index 2
+       				 SET cost = field at index 4
+        
+       				 EMIT key=store_name, value=cost
+   			 END IF
+
+		END FOR
+		
+		
+2)Copy to the roote master: 
+Copy Mapper:
+	docker cp mapper.py hadoop-master:/root/
+
+Copy Reducer:
+	docker cp reducer.py hadoop-master:/root/
+
+Copy Data:
+	docker cp purchases.txt hadoop-master:/root/
+
+Upload to HDFS : 
+	hdfs dfs -put purchases.txt /input/
+
+Run The job : 
+	hadoop jar $HADOOP_HOME/share/hadoop/tools/lib/hadoop-streaming-*.jar \
+	-files mapper.py,reducer.py \
+	-mapper "python3 mapper.py" \
+	-reducer "python3 reducer.py" \
+	-input /input/purchases.txt \
+	-output /output-sales
+
+Verify: Checks if the job created a success file
+	hdfs dfs -ls /output-sales
+
+See The last Rows of The file OUtput : 
+	hdfs dfs -cat /output-sales/part-00000 | tail
